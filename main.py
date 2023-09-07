@@ -30,15 +30,28 @@ async def register(user_credentials: UserDetails):
         password = user_credentials.password.strip()
 
         if not email or not password:
-            return CommonResponseModel(status=status.HTTP_400_BAD_REQUEST, message="Please provide email and password")
-        
+            return CommonResponseModel(
+                status=str(status.HTTP_400_BAD_REQUEST),
+                message="Please provide email and password"
+            )
+
         if password and len(password) < 8:
-            return CommonResponseModel(status=status.HTTP_400_BAD_REQUEST, message="Password is too weak")
-        
+            return CommonResponseModel(
+                status=str(status.HTTP_400_BAD_REQUEST),
+                message="Password is too weak"
+            )
+
         user_id = auth.create_user(email=email, password=password)
-        return CommonResponseModel(status=status.HTTP_201_CREATED, message=f"Registration Successful with uid: {user_id.uid}")
+        return CommonResponseModel(
+            status=str(status.HTTP_201_CREATED),
+            message=f"Registration Successful with uid: {user_id.uid}"
+        )
+
     except Exception as e:
-        return CommonResponseModel(status=status.HTTP_500_INTERNAL_SERVER_ERROR, message=str(e))
+        return CommonResponseModel(
+            status=str(status.HTTP_500_INTERNAL_SERVER_ERROR),
+            message=str(e)
+        )
 
 
 @app.post("/login", tags=["authentication"])
@@ -51,18 +64,28 @@ async def login(user_credentials: UserDetails):
         password = user_credentials.password.strip()
 
         if not email or not password:
-            return CommonResponseModel(status=status.HTTP_400_BAD_REQUEST, message="Please provide email and password")
+            return CommonResponseModel(
+                status=status.HTTP_400_BAD_REQUEST,
+                message="Please provide email and password"
+            )
+
         user = auth.get_user_by_email(email)
         uid = user.uid
         claims = {
             "email": email
         }
+
         login_data = auth.create_custom_token(uid, claims)
-        # login_data = firebase_admin.auth.sign_in_with_email_and_password(email, password)
-        print(login_data)
-        return CommonResponseModel(status=status.HTTP_201_CREATED, message=f"Login Successful")
+        return CommonResponseModel(
+            status=status.HTTP_201_CREATED,
+            message=f"Login Successful"
+        )
+
     except Exception as e:
-        return CommonResponseModel(status=status.HTTP_500_INTERNAL_SERVER_ERROR, message=str(e))
+        return CommonResponseModel(
+            status=str(status.HTTP_500_INTERNAL_SERVER_ERROR),
+            message=str(e)
+        )
 
 
 @app.post("/logout", tags=["authentication"])
@@ -77,7 +100,13 @@ async def logout(email: str):
             "email": email
         }
         new_token = auth.create_custom_token(uid, claims, exp=5)
-        return CommonResponseModel(status=status.HTTP_200_OK, message="Loggout")
+        return CommonResponseModel(
+            status=status.HTTP_200_OK,
+            message="Loggout"
+        )
 
     except Exception as e:
-        return CommonResponseModel(status=status.HTTP_500_INTERNAL_SERVER_ERROR, message=str(e))
+        return CommonResponseModel(
+            status=str(status.HTTP_500_INTERNAL_SERVER_ERROR),
+            message=str(e)
+        )
