@@ -1,47 +1,83 @@
+import firebase_admin, os
 from typing import Union
-from models import Item, Predeined
-
-
+from models import Item, Predeined, UserDetails, CommonResponseModel
+from google.cloud import firestore
 from typing_extensions import Annotated
-
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, status
 from fastapi.security import OAuth2PasswordBearer
+from firebase_admin import auth, credentials
 
+
+creds_details = os.environ.get("creds", {})
+creds = credentials.Certificate("serviceTokenKey.json")
+firebase_admin.initialize_app(creds)
 app = FastAPI()
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-@app.get("/items/")
-async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
-    return {"token": token}
+db = firestore.AsyncClient()
 
 
-@app.get("/")
+@app.get("/", tags=["default"])
 def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.post("/register", tags=["authentication"])
+async def register(user_credentials: UserDetails):
+    '''
+        User Registration API
+    '''
+    try:
+        email = user_credentials.email.strip()
+        password = user_credentials.password.strip()
 
-@app.post("/items/{item_id}")
-def update_item(item: Item):
-    return {"item_name": item.name, "item_id": item.price, "item_offer": item.is_offer}
+        if not email or not password:
+            return CommonResponseModel(status=status.HTTP_400_BAD_REQUEST, message="Please provide email and password")
+        
+        if password and len(password) < 8:
+            return CommonResponseModel(status=status.HTTP_400_BAD_REQUEST, message="Password is too weak")
+        
+        user_id = auth.create_user(email=email, password=password)
+        return CommonResponseModel(status=status.HTTP_201_CREATED, message=f"Registration Successful with uid: {user_id.uid}")
+    except Exception as e:
+        return CommonResponseModel(status=status.HTTP_500_INTERNAL_SERVER_ERROR, message=str(e))
 
-@app.put("/items/{item_id}")
-def update_item(item_id:int, item: Item):
-    return {"item_name": item.name, "item_price": item.price, "item_offer": item.is_offer, "item_id": item_id}
+
+@app.post("/login", tags=["authentication"])
+async def login(user_credentials: UserDetails):
+    '''
+        User Login API
+    '''
+    try:
+        email = user_credentials.email.strip()
+        password = user_credentials.password.strip()
+
+        if not email or not password:
+            return CommonResponseModel(status=status.HTTP_400_BAD_REQUEST, message="Please provide email and password")
+        user = auth.get_user_by_email(email)
+        uid = user.uid
+        claims = {
+            "email": email
+        }
+        login_data = auth.create_custom_token(uid, claims)
+        # login_data = firebase_admin.auth.sign_in_with_email_and_password(email, password)
+        print(login_data)
+        return CommonResponseModel(status=status.HTTP_201_CREATED, message=f"Login Successful")
+    except Exception as e:
+        return CommonResponseModel(status=status.HTTP_500_INTERNAL_SERVER_ERROR, message=str(e))
 
 
-@app.get("/users/me/{model_name1}")
-def read_user_me(model_name1:str, model_name: Predeined):
-    print(model_name1)
-    print(Predeined.alexnet.value)
-    print(model_name.value)
-    return {"user_id": "the current user"}
+@app.post("/logout", tags=["authentication"])
+async def logout(email: str):
+    '''
+        User Logout API
+    '''
+    try:
+        user = auth.get_user_by_email(email)
+        uid = user.uid
+        claims = {
+            "email": email
+        }
+        new_token = auth.create_custom_token(uid, claims, exp=5)
+        return CommonResponseModel(status=status.HTTP_200_OK, message="Loggout")
 
-@app.get("/files/{file_path:path}")
-async def read_file(file_path: str):
-    return {"file_path": file_path}
+    except Exception as e:
+        return CommonResponseModel(status=status.HTTP_500_INTERNAL_SERVER_ERROR, message=str(e))
