@@ -1,5 +1,4 @@
-{
-    "products": [
+temp_data = [
         {
             "id": 1,
             "title": "iPhone 9",
@@ -552,8 +551,4 @@
                 "https://i.dummyjson.com/data/products/30/thumbnail.jpg"
             ]
         }
-    ],
-    "total": 100,
-    "skip": 0,
-    "limit": 30
-}
+]
