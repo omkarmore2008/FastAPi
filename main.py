@@ -2,13 +2,19 @@ import firebase_admin
 from fastapi import FastAPI
 from auth_system import login, registartion
 from handlers import CRUD
-# creds_details = os.environ.get("creds", {})
-# creds = credentials.Certificate("serviceTokenKey.json")
+from fastapi.middleware.cors import CORSMiddleware
 
 
+origins = ["*"]
 firebase_admin.initialize_app()
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/", tags=["default"])
 def root():
