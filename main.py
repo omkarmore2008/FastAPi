@@ -65,7 +65,7 @@ async def login(user_credentials: UserDetails):
 
         if not email or not password:
             return CommonResponseModel(
-                status=status.HTTP_400_BAD_REQUEST,
+                status=str(status.HTTP_400_BAD_REQUEST),
                 message="Please provide email and password"
             )
 
@@ -77,32 +77,8 @@ async def login(user_credentials: UserDetails):
 
         login_data = auth.create_custom_token(uid, claims)
         return CommonResponseModel(
-            status=status.HTTP_201_CREATED,
+            status=str(status.HTTP_201_CREATED),
             message=f"Login Successful"
-        )
-
-    except Exception as e:
-        return CommonResponseModel(
-            status=str(status.HTTP_500_INTERNAL_SERVER_ERROR),
-            message=str(e)
-        )
-
-
-@app.post("/logout", tags=["authentication"])
-async def logout(email: str):
-    '''
-        User Logout API
-    '''
-    try:
-        user = auth.get_user_by_email(email)
-        uid = user.uid
-        claims = {
-            "email": email
-        }
-        new_token = auth.create_custom_token(uid, claims, exp=5)
-        return CommonResponseModel(
-            status=status.HTTP_200_OK,
-            message="Loggout"
         )
 
     except Exception as e:
