@@ -8,7 +8,7 @@ db = firestore.AsyncClient()
 
 
 @functions_framework.cloud_event
-def create_data(cloud_event: CloudEvent) -> None:
+async def create_data(cloud_event: CloudEvent) -> None:
     """Triggers by a change to a Firestore document.
     Args:
         cloud_event: cloud event with information on the firestore event trigger
@@ -20,7 +20,7 @@ def create_data(cloud_event: CloudEvent) -> None:
     url_path = firestore_payload.value.name
     print("url_path:::::::::::::::::::::::::::::::::::::::::::::", url_path)
     try:
-        db.collection("data_update").add({
+        await db.collection("data_update").add({
             "change_id": firestore_payload.value.name.split("/")[-1],
             "old": firestore_payload.old_value,
             "new": firestore_payload.value
