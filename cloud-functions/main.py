@@ -4,11 +4,11 @@ from google.events.cloud import firestore as firestore_data
 from google.cloud import firestore
 
 
-db = firestore.AsyncClient()
+db = firestore.Client()
 
 
 @functions_framework.cloud_event
-async def create_data(cloud_event: CloudEvent) -> None:
+def create_data(cloud_event: CloudEvent) -> None:
     """Triggers by a change to a Firestore document.
     Args:
         cloud_event: cloud event with information on the firestore event trigger
@@ -20,10 +20,10 @@ async def create_data(cloud_event: CloudEvent) -> None:
     url_path = firestore_payload.value.name
     print("url_path:::::::::::::::::::::::::::::::::::::::::::::", url_path)
     try:
-        await db.collection("data_update").add({
+        db.collection("data_update").add({
             "change_id": firestore_payload.value.name.split("/")[-1],
-            "old": firestore_payload.old_value,
-            "new": firestore_payload.value
+            firestore_payload.old_value.fields["key"]: firestore_payload.old_value.fields["value"],
+            firestore_payload.value.fields["key"]: firestore_payload.value.fields["value"]
         })
     except Exception as e:
         import traceback
