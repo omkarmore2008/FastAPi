@@ -19,7 +19,7 @@ async def login(user_credentials: UserDetails):
     url = os.environ.get("LOGIN_URL", "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key")
     try:
         request_body = user_credentials.dict()
-        
+
         if request_body:
             request_body.update({"returnSecureToken": True})
             request_body = json.dumps(request_body)

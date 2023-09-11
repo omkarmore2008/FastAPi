@@ -3,3 +3,5 @@ gunicorn
 uvicorn
 firebase-admin
 pydantic[email]
+functions-framework
+google-events
