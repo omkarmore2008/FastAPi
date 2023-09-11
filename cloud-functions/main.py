@@ -26,4 +26,6 @@ async def create_data(cloud_event: CloudEvent) -> None:
             "new": firestore_payload.value
         })
     except Exception as e:
+        import traceback
+        print("Traceback:", traceback.format_exc())
         print("Something went wrong :", str(e))
