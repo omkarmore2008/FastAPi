@@ -20,11 +20,8 @@ def create_data(cloud_event: CloudEvent) -> None:
     url_path = firestore_payload.value.name
     print("url_path:::::::::::::::::::::::::::::::::::::::::::::", url_path)
     try:
-        db.collection("data_update").add({
-            "change_id": firestore_payload.value.name.split("/")[-1],
-            firestore_payload.old_value.fields["key"]: firestore_payload.old_value.fields["value"],
-            firestore_payload.value.fields["key"]: firestore_payload.value.fields["value"]
-        })
+        print(firestore_payload.old_value.fields)
+        print(firestore_payload.value.fields)
     except Exception as e:
         import traceback
         print("Traceback:", traceback.format_exc())
