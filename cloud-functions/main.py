@@ -19,8 +19,11 @@ def create_data(cloud_event: CloudEvent) -> None:
     print(f"Function triggered by change to: {cloud_event['source']}")
     url_path = firestore_payload.value.name
     print("url_path:::::::::::::::::::::::::::::::::::::::::::::", url_path)
-    print("\nOld value:")
-    print(firestore_payload.old_value)
-
-    print("\nNew value:")
-    print(firestore_payload.value)
+    try:
+        db.collection("data_update").add({
+            "change_id": firestore_payload.value.name.split("/")[-1],
+            "old": firestore_payload.old_value,
+            "new": firestore_payload.value
+        })
+    except Exception as e:
+        print("Something went wrong :", str(e))
