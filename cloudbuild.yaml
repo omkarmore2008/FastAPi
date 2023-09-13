@@ -1,14 +1,13 @@
 steps:
-  - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "gcr.io/fastapi-test-practice/fastapitestpractice", "."]
-  - name: "gcr.io/cloud-builders/gcloud"
-    args:
-      - "run"
-      - "deploy"
-      - "fast-api-test-practice"
-      - "--image"
-      - "gcr.io/fastapi-test-practice/fastapitestpractice"
-      - "--platform"
-      - "managed"
-      - "--region"
-      - "europe-east1"
+# Build the container image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/fastapi-test-practice/fastapi-test-practice', '.']
+# Push the container image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/fastapi-test-practice/fastapi-test-practice']
+# Deploy container image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args: ['run', 'deploy', 'fastapi', '--image', 'gcr.io/fastapi-test-practice/fastapi-test-practice', '--region', 'europe-east1']
+images:
+- gcr.io/fastapi-test-practice/fastapi-test-practice
