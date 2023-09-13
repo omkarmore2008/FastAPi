@@ -1,5 +1,4 @@
 fastapi
-gunicorn
 uvicorn
 firebase-admin
 pydantic[email]
