@@ -4,8 +4,6 @@ FROM python:3.9
 # 
 WORKDIR /app
 
-#
-COPY . /app /app/code
 
 COPY ./requirements.txt /app/requirements.txt
 
