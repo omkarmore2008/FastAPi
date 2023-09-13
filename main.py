@@ -1,4 +1,4 @@
-import firebase_admin
+import firebase_admin, uvicorn
 from fastapi import FastAPI, Depends
 from auth_system import login, registartion
 from handlers import CRUD
@@ -32,3 +32,7 @@ async def secure_endpoint(token: dict = Depends(firebase_auth)):
     email = token.get("email")
 
     return {"message": f"Hello, {email} (User ID: {user_id})! This is a secure endpoint."}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8080)
