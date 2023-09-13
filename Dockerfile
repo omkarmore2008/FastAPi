@@ -5,9 +5,9 @@ FROM python:3.9
 WORKDIR /app
 
 #
-COPY . /app
+COPY . /app /app/code
 
-COPY ./requirements.txt
+COPY ./requirements.txt /app/requirements.txt
 
 # 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
