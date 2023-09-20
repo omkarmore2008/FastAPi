@@ -1,4 +1,4 @@
-import firebase_admin, uvicorn
+import firebase_admin
 from fastapi import FastAPI, Depends
 from auth_system import login, registartion
 from handlers import CRUD
